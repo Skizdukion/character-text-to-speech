@@ -17,9 +17,6 @@ import nltk
 
 import torch
 
-import os
-import subprocess
-
 # fastapi port
 server_port = 6006
 
