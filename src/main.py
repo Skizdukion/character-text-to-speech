@@ -6,24 +6,36 @@ from functions import *
 import base64
 import os
 import traceback
+from TTS.tts.configs.bark_config import BarkConfig
+from TTS.tts.models.bark import Bark
 
-from bark import SAMPLE_RATE, generate_audio, preload_models
+from bark import SAMPLE_RATE
 import soundfile as sf
 import wave
 import numpy as np
 import nltk
 
+import torch
+
+import os
+import subprocess
+
 # fastapi port
 server_port = 6006
-
-# Preload model
-preload_models()
 
 app = FastAPI(docs_url=None, redoc_url=None)
 
 # Set allowed access domain names
 origins = ["*"]  # set to "*" means all.
 
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
+
+config = BarkConfig()
+model = Bark.init_from_config(config)
+model.load_checkpoint(config, checkpoint_dir="bark", eval=True)
+
+model.to(device)
 
 def concatenate_wavs(wav_files, output_file, silence_duration=0.3):
     wavs = [wave.open(f, 'rb') for f in wav_files]
@@ -65,7 +77,7 @@ async def tts_bark(item: schemas.generate_web):
         idx = 1
         wavs = []
         for s in sentences:
-            audio_array = generate_audio(s, history_prompt="en_speaker_8", text_temp=0.6, waveform_temp=0.6)
+            audio_array = model.synthesize(s, config, speaker_id='obama', voice_dirs='voices', language='en', temperature=0.6)
             fname = f"tmp-{idx}.wav"
             sf.write(fname, audio_array, SAMPLE_RATE)
             idx += 1
