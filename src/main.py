@@ -110,7 +110,7 @@ async def helloWorld():
 #         print_log(item, res, time_start)
 #         return res
 
-@app.post("/tts/obama/")
+@app.post("/tts/")
 async def tts_bark(item: schemas.generate_web):
     time_start = time.time()
     text = item.text
@@ -120,7 +120,7 @@ async def tts_bark(item: schemas.generate_web):
         idx = 1
         wavs = []
         for s in sentences:
-            output_dict = model.synthesize(s, config, speaker_id='obama', voice_dirs=os.getcwd()+'/src/voices', language='en', temperature=0.6)
+            output_dict = model.synthesize(s, config, speaker_id=item.char, voice_dirs=os.getcwd()+'/src/voices', language='en', temperature=0.6)
             fname = f"tmp-{idx}.wav"
             sf.write(fname, output_dict['wav'], SAMPLE_RATE)
             idx += 1
