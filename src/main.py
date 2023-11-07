@@ -110,7 +110,7 @@ async def helloWorld():
 #         print_log(item, res, time_start)
 #         return res
 
-@app.post("/tts/obama")
+@app.post("/tts/obama/")
 async def tts_bark(item: schemas.generate_web):
     time_start = time.time()
     text = item.text
@@ -159,3 +159,4 @@ if __name__ == '__main__':
     uvicorn.run(app="main:app", host="0.0.0.0", port=server_port, reload=False)
 
 # curl http://localhost:6006/hello
+# curl -X POST -H "Content-Type: application/json" -d '{"text":"It is not working at all"}' http://localhost:6006/tts/obama/
