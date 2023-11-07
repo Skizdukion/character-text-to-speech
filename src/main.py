@@ -120,9 +120,9 @@ async def tts_bark(item: schemas.generate_web):
         idx = 1
         wavs = []
         for s in sentences:
-            audio_array = (model.synthesize(s, config, speaker_id='obama', voice_dirs=os.getcwd()+'/src/voices', language='en', temperature=0.6))['wav']
+            output_dict = model.synthesize(s, config, speaker_id='obama', voice_dirs=os.getcwd()+'/src/voices', language='en', temperature=0.6)
             fname = f"tmp-{idx}.wav"
-            sf.write(fname, audio_array, SAMPLE_RATE)
+            sf.write(fname, output_dict['wav'], SAMPLE_RATE)
             idx += 1
             wavs.append(fname)
         file_name_pre = f"out-{time.time()}"
