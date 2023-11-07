@@ -63,6 +63,9 @@ app.add_middleware(
     allow_methods=["*"],  # Set up HTTP methods that allow cross domain access, such as get, post, put, etc.
     allow_headers=["*"])  # Allowing cross domain headers can be used to identify sources and other functions.
 
+@app.get("/hello")
+async def helloWorld():
+    return {"data": "hello world"}
 
 @app.post("/tts_bark/")
 async def tts_bark(item: schemas.generate_web):
@@ -105,6 +108,5 @@ async def tts_bark(item: schemas.generate_web):
         return res
 
 if __name__ == '__main__':
-
     print_env(server_port)
     uvicorn.run(app="main:app", host="0.0.0.0", port=server_port, reload=False)
