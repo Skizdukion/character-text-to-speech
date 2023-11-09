@@ -24,6 +24,5 @@ chmod +x setup-bark.sh
 
 #### 5. Run Server
 ```
-cd src
-python main.py
+python src/main.py
 ```
