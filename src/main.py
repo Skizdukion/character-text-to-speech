@@ -156,3 +156,7 @@ if __name__ == '__main__':
 
 # curl http://localhost:6006/hello
 # curl -X POST -H "Content-Type: application/json" -d '{"text":"It is not working at all"}' http://localhost:6006/tts/obama/
+
+# HI Gordon. I just try out to using some of our girls voice to train the AI and its not working at all. My guess is the accent is too heavy that the bot could not recognize the words. I will try a few better speakers from youtube to see if it working or not 
+
+# youtube-dl -o 'video.%(ext)s' https://youtu.be/K--gWoUgBNQ && ffmpeg -i 'video.mp4' -ss 00:04:17 -to 00:05:42 -vn -acodec pcm_s16le -ar 44100 -ac 2 output.wav
