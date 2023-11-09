@@ -5,6 +5,6 @@ from typing import Union, Literal
 class generate_web(BaseModel):
     text: Union[str, None] = None
 
-    char: Literal['obama', 'vn-male', 'lucia'] = Field(...)
+    char: Literal['obama', 'vn-male', 'lucia', 'hera'] = Field(...)
     class Config:
         orm_mode = True
