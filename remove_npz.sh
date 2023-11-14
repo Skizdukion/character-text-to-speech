@@ -1,0 +1,1 @@
+rm voices/*/*.npz

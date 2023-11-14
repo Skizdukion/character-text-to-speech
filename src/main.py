@@ -66,50 +66,6 @@ app.add_middleware(
     allow_methods=["*"],  # Set up HTTP methods that allow cross domain access, such as get, post, put, etc.
     allow_headers=["*"])  # Allowing cross domain headers can be used to identify sources and other functions.
 
-@app.get("/hello")
-async def helloWorld():
-    return {"data": "hello world"}
-
-# @app.post("/tts_bark/")
-# async def tts_bark(item: schemas.generate_web):
-#     time_start = time.time()
-#     text = item.text
-#     print(f"{text=}")
-#     try:
-#         sentences = nltk.sent_tokenize(text)
-#         idx = 1
-#         wavs = []
-#         for s in sentences:
-#             audio_array = generate_audio(s, history_prompt="en_speaker_8", text_temp=0.6, waveform_temp=0.6)
-#             fname = f"tmp-{idx}.wav"
-#             sf.write(fname, audio_array, SAMPLE_RATE)
-#             idx += 1
-#             wavs.append(fname)
-#         file_name_pre = f"out-{time.time()}"
-#         file_name_wav = file_name_pre + ".wav"
-#         file_name_ogg = file_name_pre + ".ogg"
-#         concatenate_wavs(wavs, file_name_wav)
-
-#         # convert to OGG
-#         os.system("ffmpeg -i " + file_name_wav + " -c:a libopus -b:a 64k -y " + file_name_ogg)
-
-#         with open(file_name_ogg, "rb") as f:
-#             audio_content = f.read()
-#         base64_audio = base64.b64encode(audio_content).decode("utf-8")
-#         res = {"file_base64": base64_audio,
-#                "audio_text": text,
-#                "file_name": file_name_ogg,
-#                }
-#         print_log(item, res, time_start)
-#         os.remove(file_name_wav)
-#         os.remove(file_name_ogg)
-
-#         return res
-#     except Exception as err:
-#         res = {"code": 9, "msg": "api error", "err": str(err), "traceback": traceback.format_exc()}
-#         print_log(item, res, time_start)
-#         return res
-
 @app.post("/tts/")
 async def tts_bark(item: schemas.generate_web):
     time_start = time.time()

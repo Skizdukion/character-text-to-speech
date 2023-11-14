@@ -1,8 +1,8 @@
 import os
 
-url = 'https://youtu.be/gMorxgFDvo4'
+url = ''
 
-parts = [["00:26", "03:28"]]
+parts = []
 
 idx = 0
 

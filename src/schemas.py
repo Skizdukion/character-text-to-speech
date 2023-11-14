@@ -4,7 +4,14 @@ from typing import Union, Literal
 
 class generate_web(BaseModel):
     text: Union[str, None] = None
+    char: str = Field(...)
 
-    char: Literal['obama', 'thuytien', 'khanhvy', 'mykhuong'] = Field(...)
+    @validator('char')
+    def check_char(cls, v):
+        foler_path = '/src/voices/' + v;
+        if not os.path.isdir(folder_path):
+            raise ValueError('Char is not valid')
+        return v
+
     class Config:
         orm_mode = True
