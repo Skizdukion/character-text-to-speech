@@ -8,7 +8,7 @@ class generate_web(BaseModel):
 
     @validator('char')
     def check_char(cls, v):
-        foler_path = '/src/voices/' + v;
+        folder_path = '/src/voices/' + v;
         if not os.path.isdir(folder_path):
             raise ValueError('Char is not valid')
         return v
