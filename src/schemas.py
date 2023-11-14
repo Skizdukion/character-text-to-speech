@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, validator
 from typing import Union, Literal
-
+import os
 
 class generate_web(BaseModel):
     text: Union[str, None] = None
