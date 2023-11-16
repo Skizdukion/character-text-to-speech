@@ -53,7 +53,7 @@ async def tts_bark(item: schemas.generate_web):
         file_name_wav = fname + ".wav"
         file_name_ogg = fname + ".ogg"
 
-        tts.tts_to_file(text=item.text, voice_dir=os.getcwd()+'/src/voices', speaker=item.char, file_path = os.getcwd() + file_name_wav + '.wav')
+        tts.tts_to_file(text=item.text, voice_dir=os.getcwd()+'/src/voices', speaker=item.char, file_path = os.getcwd() + file_name_wav)
 
         # convert to OGG
         subprocess.run(["ffmpeg", "-i", file_name_wav, "-c:a", "libopus", "-b:a", "64k", "-y", file_name_ogg], check=True)
