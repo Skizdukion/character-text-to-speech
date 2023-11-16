@@ -1,22 +1,17 @@
 ### Manual installation using Conda
 
 #### 1. Install requirements
-
 ```
 pip install -r requirements.txt
 ```
 
-#### 2. Download nltk
+#### 2. Download ffmpeg & espeak-ng
 ```
-python -m nltk.downloader punkt
-```
-
-#### 3. Install ffmpeg
-```
-apt install ffmpeg
+apt update && apt install espeak-ng ffmpeg -y
 ```
 
-#### 4. Run Server
+#### 3. Run Server
 ```
-python src/main.py
+cd /src
+python main.py
 ```
