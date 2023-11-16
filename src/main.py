@@ -1,5 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 import schemas
 import uvicorn
 from starlette.middleware.cors import CORSMiddleware
@@ -8,12 +7,6 @@ import base64
 import os
 import traceback
 from TTS.api import TTS
-from bark import SAMPLE_RATE
-
-import soundfile as sf
-import wave
-import numpy as np
-import nltk
 import torch
 import random
 import string
