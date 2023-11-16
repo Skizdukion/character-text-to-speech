@@ -17,8 +17,9 @@ import soundfile as sf
 import wave
 import numpy as np
 import nltk
-
 import torch
+
+import subprocess
 
 # fastapi port
 server_port = 6006
@@ -87,7 +88,8 @@ async def tts_bark(item: schemas.generate_web):
         concatenate_wavs(wavs, file_name_wav)
 
         # convert to OGG
-        os.system("ffmpeg -i " + file_name_wav + " -c:a libopus -b:a 64k -y " + file_name_ogg)
+        # os.system("ffmpeg -i " + file_name_wav + " -c:a libopus -b:a 64k -y " + file_name_ogg)
+        subprocess.run(["ffmpeg", "-i", file_name_wav, "-c:a", "libopus", "-b:a", "64k", "-y", file_name_ogg], check=True)
 
         with open(file_name_ogg, "rb") as f:
             audio_content = f.read()
