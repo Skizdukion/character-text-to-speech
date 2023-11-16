@@ -7,12 +7,9 @@ from functions import *
 import base64
 import os
 import traceback
-from TTS.tts.configs.bark_config import BarkConfig
-from TTS.tts.models.bark import Bark
+from TTS.api import TTS
 from bark import SAMPLE_RATE
 
-
-from bark import SAMPLE_RATE
 import soundfile as sf
 import wave
 import numpy as np
@@ -26,17 +23,11 @@ server_port = 6006
 
 app = FastAPI(docs_url=None, redoc_url=None)
 
-# Set allowed access domain names
 origins = ["*"]  # set to "*" means all.
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-
-config = BarkConfig()
-model = Bark.init_from_config(config)
-model.load_checkpoint(config, checkpoint_dir="bark", eval=True)
-
-model.to(device)
+tts = TTS("tts_models/multilingual/multi-dataset/bark").to(device)
 
 def concatenate_wavs(wav_files, output_file, silence_duration=0.3):
     wavs = [wave.open(f, 'rb') for f in wav_files]
@@ -77,9 +68,9 @@ async def tts_bark(item: schemas.generate_web):
         idx = 1
         wavs = []
         for s in sentences:
-            output_dict = model.synthesize(s, config, speaker_id=item.char, voice_dirs=os.getcwd()+'/src/voices', language='en', temperature=0.6)
+            wav = tts.tts(text=text, voice_dir=os.getcwd()+'/src/voices', speaker=item.char)
             fname = f"tmp-{idx}.wav"
-            sf.write(fname, output_dict['wav'], SAMPLE_RATE)
+            sf.write(fname, wav, SAMPLE_RATE)
             idx += 1
             wavs.append(fname)
         file_name_pre = f"out-{time.time()}"

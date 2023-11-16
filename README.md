@@ -16,13 +16,7 @@ python -m nltk.downloader punkt
 apt install ffmpeg
 ```
 
-#### 4. Setup bark checkpoint
-```
-chmod +x setup-bark.sh
-./setup-bark.sh
-```
-
-#### 5. Run Server
+#### 4. Run Server
 ```
 python src/main.py
 ```
