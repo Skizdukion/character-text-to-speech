@@ -15,7 +15,8 @@ import wave
 import numpy as np
 import nltk
 import torch
-
+import random
+import string
 import subprocess
 
 # fastapi port
@@ -29,25 +30,10 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 tts = TTS("tts_models/multilingual/multi-dataset/bark").to(device)
 
-def concatenate_wavs(wav_files, output_file, silence_duration=0.3):
-    wavs = [wave.open(f, 'rb') for f in wav_files]
-    sampwidth = wavs[0].getsampwidth()
-    framerate = wavs[0].getframerate()
-    nchannels = wavs[0].getnchannels()
-
-    samples = [wav.readframes(wav.getnframes()) for wav in wavs]
-    total_frames = sum(len(s) for s in samples) + int(silence_duration * framerate * nchannels * sampwidth)
-
-    output = wave.open(output_file, 'wb')
-    output.setparams((nchannels, sampwidth, framerate, total_frames, 'NONE', 'Uncompressed'))
-
-    for s in samples:
-        output.writeframes(s)
-        silence_frame = np.zeros((int(silence_duration * framerate), 2)).astype(np.int16).tobytes()
-        for i in range(int(nchannels / 2)):
-            output.writeframes(silence_frame)
-
-    output.close()
+def get_random_string(length):
+    letters = string.ascii_lowercase
+    result_str = ''.join(random.choice(letters) for i in range(length))
+    return result_str
 
 
 # Set cross domain parameter transfer
@@ -61,38 +47,29 @@ app.add_middleware(
 @app.post("/tts/")
 async def tts_bark(item: schemas.generate_web):
     time_start = time.time()
-    text = item.text
-    print(f"{text=}")
     try:
-        sentences = nltk.sent_tokenize(text)
-        idx = 1
-        wavs = []
-        for s in sentences:
-            wav = tts.tts(text=text, voice_dir=os.getcwd()+'/src/voices', speaker=item.char)
-            fname = f"tmp-{idx}.wav"
-            sf.write(fname, wav, SAMPLE_RATE)
-            idx += 1
-            wavs.append(fname)
-        file_name_pre = f"out-{time.time()}"
-        file_name_wav = file_name_pre + ".wav"
-        file_name_ogg = file_name_pre + ".ogg"
-        concatenate_wavs(wavs, file_name_wav)
+        fname = get_random_string(6)
+
+        file_name_wav = fname + ".wav"
+        file_name_ogg = fname + ".ogg"
+
+        tts.tts_to_file(text=item.text, voice_dir=os.getcwd()+'/src/voices', speaker=item.char, file_path = os.getcwd() + file_name_wav + '.wav')
 
         # convert to OGG
-        # os.system("ffmpeg -i " + file_name_wav + " -c:a libopus -b:a 64k -y " + file_name_ogg)
         subprocess.run(["ffmpeg", "-i", file_name_wav, "-c:a", "libopus", "-b:a", "64k", "-y", file_name_ogg], check=True)
 
         with open(file_name_ogg, "rb") as f:
             audio_content = f.read()
         base64_audio = base64.b64encode(audio_content).decode("utf-8")
+
         res = {"file_base64": base64_audio,
-               "audio_text": text,
+               "audio_text": item.text,
                "file_name": file_name_ogg,
                }
+        
         print_log(item, res, time_start)
         os.remove(file_name_wav)
         os.remove(file_name_ogg)
-
         return res
     except Exception as err:
         res = {"code": 9, "msg": "api error", "err": str(err), "traceback": traceback.format_exc()}
