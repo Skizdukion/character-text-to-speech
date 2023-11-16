@@ -4,3 +4,4 @@ uvicorn==0.22.0
 soundfile==0.12.1
 tts==0.19.1
 torch==2.1.0+cu118
+pydub==0.25.1

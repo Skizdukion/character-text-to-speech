@@ -7,7 +7,7 @@ pip install -r requirements.txt
 
 #### 2. Download ffmpeg & espeak-ng
 ```
-apt update && apt install espeak-ng ffmpeg -y
+apt update && apt install espeak-ng -y
 ```
 
 #### 3. Run Server

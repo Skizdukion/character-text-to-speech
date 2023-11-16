@@ -11,6 +11,7 @@ import torch
 import random
 import string
 import subprocess
+from pydub import AudioSegment
 
 # fastapi port
 server_port = 6006
@@ -48,8 +49,9 @@ async def tts_bark(item: schemas.generate_web):
 
         tts.tts_to_file(text=item.text, voice_dir=os.getcwd()+'/voices', speaker=item.char, file_path = os.getcwd() + "/" + file_name_wav)
 
-        # convert to OGG
-        subprocess.run(["ffmpeg", "-i", file_name_wav, "-c:a", "libopus", "-b:a", "64k", "-y", file_name_ogg], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, check=True)
+        sound = AudioSegment.from_wav(file_name_wav)
+
+        sound.export(file_name_ogg, format="ogg", bitrate="64k", codec="libopus")
 
         with open(file_name_ogg, "rb") as f:
             audio_content = f.read()
