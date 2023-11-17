@@ -1,6 +1,4 @@
-fastapi==0.95.2
-bark==0.1.5
-uvicorn==0.22.0
-soundfile==0.12.1
-tts==0.19.1
-pydub==0.25.1
+fastapi
+uvicorn
+pydub
+tts

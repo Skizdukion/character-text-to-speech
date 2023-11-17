@@ -41,26 +41,26 @@ async def tts_bark(item: schemas.generate_web):
         fname = get_random_string(6)
 
         file_name_wav = fname + ".wav"
-        file_name_ogg = fname + ".ogg"
+        file_name_mp3 = fname + ".mp3"
 
         tts.tts_to_file(text=item.text, voice_dir=os.getcwd()+'/voices', speaker=item.char, file_path = os.getcwd() + "/" + file_name_wav)
 
         sound = AudioSegment.from_wav(file_name_wav)
 
-        sound.export(file_name_ogg, format="ogg", bitrate="64k", codec="libopus")
+        sound.export(file_name_mp3, format="mp3", bitrate="64k")
 
-        with open(file_name_ogg, "rb") as f:
+        with open(file_name_mp3, "rb") as f:
             audio_content = f.read()
         base64_audio = base64.b64encode(audio_content).decode("utf-8")
 
         res = {"file_base64": base64_audio,
                "audio_text": item.text,
-               "file_name": file_name_ogg,
+               "file_name": file_name_mp3,
                }
         
         print_log(item, res, time_start)
         os.remove(file_name_wav)
-        os.remove(file_name_ogg)
+        os.remove(file_name_mp3)
         return res
     except Exception as err:
         res = {"code": 9, "msg": "api error", "err": str(err), "traceback": traceback.format_exc()}
