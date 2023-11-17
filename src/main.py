@@ -7,10 +7,8 @@ import base64
 import os
 import traceback
 from TTS.api import TTS
-import torch
 import random
 import string
-import subprocess
 from pydub import AudioSegment
 
 # fastapi port
@@ -20,9 +18,7 @@ app = FastAPI(docs_url=None, redoc_url=None)
 
 origins = ["*"]  # set to "*" means all.
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
-
-tts = TTS("tts_models/multilingual/multi-dataset/bark").to(device)
+tts = TTS("tts_models/multilingual/multi-dataset/bark").to("cuda")
 
 def get_random_string(length):
     letters = string.ascii_lowercase
