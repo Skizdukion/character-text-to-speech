@@ -1,7 +1,3 @@
-FROM redis:6.2.5
-
-CMD [ "redis-server", "--timeout" ]
-
 FROM runpod/pytorch:2.1.0-py3.10-cuda11.8.0-devel-ubuntu22.04
 
 ENV TZ=America/Los_Angeles
@@ -25,4 +21,6 @@ ADD ./src .
 RUN mv src/voices/ .
 RUN rm -rf src
 
-CMD bash -c "rq worker task_queue & python main.py"
+RUN apt install redis -y
+
+CMD bash -c "redis-server & rq worker task_queue & python main.py"

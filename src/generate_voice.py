@@ -4,20 +4,31 @@ import os
 from pydub import AudioSegment
 import base64
 import traceback
+from TTS.api import TTS
+
+tts = None
 
 def get_random_string(length):
     letters = string.ascii_lowercase
     result_str = ''.join(random.choice(letters) for i in range(length))
     return result_str
 
-def generate_voices(text, char, tts):
+def get_tts():
+    if tts == None:
+        print("Starting init tts")
+        tts = TTS("tts_models/multilingual/multi-dataset/bark").to("cuda") 
+
+    return tts
+
+def generate_voices(text, char):
+    print("Execute " + text + " at " + char)
     try:
         fname = get_random_string(6)
 
         file_name_wav = fname + ".wav"
         file_name_ogg = fname + ".ogg"
 
-        tts.tts_to_file(text=text, voice_dir=os.getcwd()+'/voices', speaker=char, file_path = os.getcwd() + "/" + file_name_wav)
+        get_tts().tts_to_file(text=text, voice_dir=os.getcwd()+'/voices', speaker=char, file_path = os.getcwd() + "/" + file_name_wav)
 
         sound = AudioSegment.from_wav(file_name_wav)
 

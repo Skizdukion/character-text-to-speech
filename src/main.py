@@ -17,8 +17,6 @@ app = FastAPI(docs_url=None, redoc_url=None)
 
 origins = ["*"]  # set to "*" means all.
 
-tts = TTS("tts_models/multilingual/multi-dataset/bark").to("cuda") 
-
 task_queue = Queue("task_queue", connection=Redis())
 
 def get_random_string(length):
@@ -37,7 +35,7 @@ app.add_middleware(
 
 @app.post("/tts/")
 async def tts_bark(item: schemas.generate_web):
-    job_instance = task_queue.enqueue(generate_voices, item.text, item.char, tts)
+    job_instance = task_queue.enqueue(generate_voices, item.text, item.char)
     return job_instance.latest_result()
 
 if __name__ == '__main__':
