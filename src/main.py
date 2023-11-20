@@ -26,7 +26,7 @@ origins = ["*"]  # set to "*" means all.
 
 task_queue = Queue("task_queue", connection=Redis())
 
-tts = None
+tts = TTS("tts_models/multilingual/multi-dataset/bark").to("cuda") 
 
 def get_random_string(length):
     letters = string.ascii_lowercase
@@ -58,15 +58,8 @@ def get_random_string(length):
     result_str = ''.join(random.choice(letters) for i in range(length))
     return result_str
 
-def get_tts():
-    global tts
-    if tts == None:
-        print("Starting init tts")
-        tts = TTS("tts_models/multilingual/multi-dataset/bark").to("cuda") 
-
-    return tts
-
 def generate_voices(item: schemas.generate_web):
+    global tts
     print("Execute " + item.text + " at " + item.char)
     try:
         fname = get_random_string(6)
@@ -74,7 +67,7 @@ def generate_voices(item: schemas.generate_web):
         file_name_wav = fname + ".wav"
         file_name_ogg = fname + ".ogg"
 
-        get_tts().tts_to_file(text=item.text, voice_dir=os.getcwd()+'/voices', speaker=item.char, file_path = os.getcwd() + "/" + file_name_wav)
+        tts.tts_to_file(text=item.text, voice_dir=os.getcwd()+'/voices', speaker=item.char, file_path = os.getcwd() + "/" + file_name_wav)
 
         sound = AudioSegment.from_wav(file_name_wav)
 
