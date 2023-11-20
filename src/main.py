@@ -53,6 +53,7 @@ def get_random_string(length):
     return result_str
 
 def get_tts():
+    global tts
     if tts == None:
         print("Starting init tts")
         tts = TTS("tts_models/multilingual/multi-dataset/bark").to("cuda") 
