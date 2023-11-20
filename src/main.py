@@ -43,7 +43,7 @@ app.add_middleware(
 
 @app.post("/tts/")
 async def tts_bark(item: schemas.generate_web):
-    job_instance = task_queue.enqueue(generate_voices, item.text, item.char)
+    job_instance = task_queue.enqueue(generate_voices, item)
     return job_instance.latest_result()
 
 
@@ -59,15 +59,15 @@ def get_tts():
 
     return tts
 
-def generate_voices(text, char):
-    print("Execute " + text + " at " + char)
+def generate_voices(item: schemas.generate_web):
+    print("Execute " + item.text + " at " + item.char)
     try:
         fname = get_random_string(6)
 
         file_name_wav = fname + ".wav"
         file_name_ogg = fname + ".ogg"
 
-        get_tts().tts_to_file(text=text, voice_dir=os.getcwd()+'/voices', speaker=char, file_path = os.getcwd() + "/" + file_name_wav)
+        get_tts().tts_to_file(text=item.text, voice_dir=os.getcwd()+'/voices', speaker=item.char, file_path = os.getcwd() + "/" + file_name_wav)
 
         sound = AudioSegment.from_wav(file_name_wav)
 
@@ -78,7 +78,7 @@ def generate_voices(text, char):
         base64_audio = base64.b64encode(audio_content).decode("utf-8")
 
         res = {"file_base64": base64_audio,
-               "audio_text": text,
+               "audio_text": item.text,
                "file_name": file_name_ogg,
                }
         
