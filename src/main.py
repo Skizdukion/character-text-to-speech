@@ -15,6 +15,7 @@ from pydub import AudioSegment
 import base64
 import traceback
 from TTS.api import TTS
+from time import sleep
 
 # fastapi port
 server_port = 6006
@@ -44,7 +45,12 @@ app.add_middleware(
 @app.post("/tts/")
 async def tts_bark(item: schemas.generate_web):
     job_instance = task_queue.enqueue(generate_voices, item)
-    return job_instance.fetch_latest(timeout=60)
+    while True:
+        job_res = job_instance.fetch(job_instance.get_id(), connection=task_queue.connection)
+        if job_res.is_finished:
+            return job_res.result
+        else:
+            sleep(1) 
 
 
 def get_random_string(length):
