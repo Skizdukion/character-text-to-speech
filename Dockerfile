@@ -5,13 +5,9 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN apt-get update
 
-RUN apt install espeak-ng wget unzip ffmpeg -y
+RUN apt install espeak-ng ffmpeg -y
 
 WORKDIR /root
-
-RUN wget https://github.com/Skizdukion/character-text-to-speech/raw/main/voices.zip
-
-RUN unzip voices.zip && rm voices.zip
 
 ADD ./requirements.txt .
 RUN pip install --ignore-installed blinker
