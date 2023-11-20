@@ -3,13 +3,12 @@ import schemas
 import uvicorn
 from starlette.middleware.cors import CORSMiddleware
 from functions import *
-import base64
-import os
-import traceback
 from TTS.api import TTS
 import random
 import string
-from pydub import AudioSegment
+from rq import Queue
+from redis import Redis
+from generate_voice import generate_voices
 
 # fastapi port
 server_port = 6006
@@ -18,7 +17,9 @@ app = FastAPI(docs_url=None, redoc_url=None)
 
 origins = ["*"]  # set to "*" means all.
 
-tts = TTS("tts_models/multilingual/multi-dataset/bark").to("cuda")
+tts = TTS("tts_models/multilingual/multi-dataset/bark").to("cuda") 
+
+task_queue = Queue("task_queue", connection=Redis())
 
 def get_random_string(length):
     letters = string.ascii_lowercase
@@ -36,36 +37,8 @@ app.add_middleware(
 
 @app.post("/tts/")
 async def tts_bark(item: schemas.generate_web):
-    time_start = time.time()
-    try:
-        fname = get_random_string(6)
-
-        file_name_wav = fname + ".wav"
-        file_name_mp3 = fname + ".mp3"
-
-        tts.tts_to_file(text=item.text, voice_dir=os.getcwd()+'/voices', speaker=item.char, file_path = os.getcwd() + "/" + file_name_wav)
-
-        sound = AudioSegment.from_wav(file_name_wav)
-
-        sound.export(file_name_mp3, format="mp3", bitrate="64k")
-
-        with open(file_name_mp3, "rb") as f:
-            audio_content = f.read()
-        base64_audio = base64.b64encode(audio_content).decode("utf-8")
-
-        res = {"file_base64": base64_audio,
-               "audio_text": item.text,
-               "file_name": file_name_mp3,
-               }
-        
-        print_log(item, res, time_start)
-        os.remove(file_name_wav)
-        os.remove(file_name_mp3)
-        return res
-    except Exception as err:
-        res = {"code": 9, "msg": "api error", "err": str(err), "traceback": traceback.format_exc()}
-        print_log(item, res, time_start)
-        return res
+    job_instance = task_queue.enqueue(generate_voices, item.text, item.char, tts)
+    return job_instance.latest_result()
 
 if __name__ == '__main__':
     print_env(server_port)

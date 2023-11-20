@@ -20,4 +20,4 @@ ADD ./src .
 RUN mv src/voices/ .
 RUN rm -rf src
 
-CMD ["python", "main.py"]
+CMD bash -c "rq worker task_queue & python main.py"
