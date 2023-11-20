@@ -87,6 +87,7 @@ def generate_voices(text, char):
         return res
     except Exception as err:
         res = {"code": 9, "msg": "api error", "err": str(err), "traceback": traceback.format_exc()}
+        print(res)
         return res
 
 if __name__ == '__main__':
