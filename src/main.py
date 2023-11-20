@@ -44,7 +44,7 @@ app.add_middleware(
 @app.post("/tts/")
 async def tts_bark(item: schemas.generate_web):
     job_instance = task_queue.enqueue(generate_voices, item)
-    return job_instance.latest_result()
+    return job_instance.fetch_latest(timeout=60)
 
 
 def get_random_string(length):
