@@ -26,12 +26,13 @@ origins = ["*"]  # set to "*" means all.
 
 task_queue = Queue("task_queue", connection=Redis())
 
-app.state.tts = TTS("tts_models/multilingual/multi-dataset/bark").to("cuda")
+app.state.tts = TTS("tts_models/multilingual/multi-dataset/bark").to("cuda") 
 
 def get_random_string(length):
     letters = string.ascii_lowercase
     result_str = ''.join(random.choice(letters) for i in range(length))
     return result_str
+
 
 # Set cross domain parameter transfer
 app.add_middleware(
@@ -43,9 +44,7 @@ app.add_middleware(
 
 @app.post("/tts/")
 async def tts_bark(item: schemas.generate_web):
-    print("Create job " + item.text + " at " + item.char)
-    job_instance = task_queue.enqueue(generate_voices, {"text": item.text, "char": item.char})
-    print("Created job")
+    job_instance = task_queue.enqueue(generate_voices, item)
     while True:
         job_res = job_instance.fetch(job_instance.get_id(), connection=task_queue.connection)
         if job_res.is_finished:
@@ -59,8 +58,8 @@ def get_random_string(length):
     result_str = ''.join(random.choice(letters) for i in range(length))
     return result_str
 
-def generate_voices(item):
-    print("Execute job" + item.text + " at " + item.char)
+def generate_voices(item: schemas.generate_web):
+    print("Execute " + item.text + " at " + item.char)
     try:
         fname = get_random_string(6)
 
