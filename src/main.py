@@ -26,17 +26,12 @@ origins = ["*"]  # set to "*" means all.
 
 task_queue = Queue("task_queue", connection=Redis())
 
-# app.state.tts = TTS("tts_models/multilingual/multi-dataset/bark").to("cuda") 
+tts = TTS("tts_models/multilingual/multi-dataset/bark").to("cuda") 
 
 def get_random_string(length):
     letters = string.ascii_lowercase
     result_str = ''.join(random.choice(letters) for i in range(length))
     return result_str
-
-def get_tts():
-    if app.state.tts == None:
-        app.state.tts = TTS("tts_models/multilingual/multi-dataset/bark").to("cuda") 
-    return app.state.tts
 
 
 # Set cross domain parameter transfer
@@ -49,7 +44,7 @@ app.add_middleware(
 
 @app.post("/tts/")
 async def tts_bark(item: schemas.generate_web):
-    job_instance = task_queue.enqueue(generate_voices, {"text": item.text, "char": item.char})
+    job_instance = task_queue.enqueue(generate_voices, item)
     return job_instance.id
     # while True:
     #     job_res = job_instance.fetch(job_instance.get_id(), connection=task_queue.connection)
@@ -64,7 +59,8 @@ def get_random_string(length):
     result_str = ''.join(random.choice(letters) for i in range(length))
     return result_str
 
-def generate_voices(item):
+def generate_voices(item: schemas.generate_web):
+    global tts
     print("Execute " + item.text + " at " + item.char)
     try:
         fname = get_random_string(6)
@@ -72,7 +68,7 @@ def generate_voices(item):
         file_name_wav = fname + ".wav"
         file_name_ogg = fname + ".ogg"
 
-        get_tts().tts_to_file(text=item.text, voice_dir=os.getcwd()+'/voices', speaker=item.char, file_path = os.getcwd() + "/" + file_name_wav)
+        tts.tts_to_file(text=item.text, voice_dir=os.getcwd()+'/voices', speaker=item.char, file_path = os.getcwd() + "/" + file_name_wav)
 
         sound = AudioSegment.from_wav(file_name_wav)
 
