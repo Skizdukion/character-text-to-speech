@@ -50,13 +50,9 @@ def get_tts():
 @app.post("/tts/")
 async def tts_bark(item: schemas.generate_web):
 
-    queue_param = {
-        "text": item.text,
-        "char": item.char,
-        "tts": get_tts()
-    }
+    item.tts = get_tts()
 
-    job_instance = task_queue.enqueue(generate_voices, queue_param)
+    job_instance = task_queue.enqueue(generate_voices, item)
     return job_instance.id
     # while True:
     #     job_res = job_instance.fetch(job_instance.get_id(), connection=task_queue.connection)
@@ -71,7 +67,7 @@ def get_random_string(length):
     result_str = ''.join(random.choice(letters) for i in range(length))
     return result_str
 
-def generate_voices(item):
+def generate_voices(item: schemas.generate_web):
     print("Execute " + item.text + " at " + item.char)
     try:
         fname = get_random_string(6)

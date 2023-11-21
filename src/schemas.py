@@ -5,6 +5,7 @@ import os
 class generate_web(BaseModel):
     text: Union[str, None] = None
     char: str = Field(...)
+    tts = None
 
     @validator('char')
     def check_char(cls, v):
