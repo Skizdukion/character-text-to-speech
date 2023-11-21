@@ -59,7 +59,6 @@ def get_random_string(length):
     return result_str
 
 def generate_voices(item: schemas.generate_web):
-    global tts
     print("Execute " + item.text + " at " + item.char)
     try:
         fname = get_random_string(6)

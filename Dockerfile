@@ -14,9 +14,6 @@ RUN pip install --ignore-installed blinker
 RUN pip install -r requirements.txt
 ADD ./src .
 
-RUN mv src/voices/ .
-RUN rm -rf src
-
 RUN apt install redis -y
 
 CMD bash -c "redis-server & rq worker task_queue & python main.py"
