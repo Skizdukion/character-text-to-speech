@@ -26,13 +26,10 @@ origins = ["*"]  # set to "*" means all.
 
 task_queue = Queue("task_queue", connection=Redis())
 
-tts = TTS("tts_models/multilingual/multi-dataset/bark").to("cuda") 
-
 def get_random_string(length):
     letters = string.ascii_lowercase
     result_str = ''.join(random.choice(letters) for i in range(length))
     return result_str
-
 
 # Set cross domain parameter transfer
 app.add_middleware(
@@ -41,6 +38,11 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],  # Set up HTTP methods that allow cross domain access, such as get, post, put, etc.
     allow_headers=["*"])  # Allowing cross domain headers can be used to identify sources and other functions.
+
+def get_tts():
+    if app.state.tts == None:
+        app.state.tts = TTS("tts_models/multilingual/multi-dataset/bark").to("cuda")
+    return app.state.tts
 
 @app.post("/tts/")
 async def tts_bark(item: schemas.generate_web):
@@ -68,7 +70,7 @@ def generate_voices(item: schemas.generate_web):
         file_name_wav = fname + ".wav"
         file_name_ogg = fname + ".ogg"
 
-        tts.tts_to_file(text=item.text, voice_dir=os.getcwd()+'/voices', speaker=item.char, file_path = os.getcwd() + "/" + file_name_wav)
+        get_tts().tts_to_file(text=item.text, voice_dir=os.getcwd()+'/voices', speaker=item.char, file_path = os.getcwd() + "/" + file_name_wav)
 
         sound = AudioSegment.from_wav(file_name_wav)
 
