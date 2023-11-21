@@ -3,12 +3,6 @@ import schemas
 import uvicorn
 from starlette.middleware.cors import CORSMiddleware
 from functions import *
-from TTS.api import TTS
-import random
-import string
-import random
-import string
-from TTS.api import TTS
 from worker import generate_voices
 from fastapi.responses import JSONResponse
 from celery.result import AsyncResult
@@ -22,11 +16,6 @@ app.state.tts = None
 
 origins = ["*"]
 
-def get_random_string(length):
-    letters = string.ascii_lowercase
-    result_str = ''.join(random.choice(letters) for i in range(length))
-    return result_str
-
 # Set cross domain parameter transfer
 app.add_middleware(
     CORSMiddleware,
@@ -34,12 +23,6 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],  # Set up HTTP methods that allow cross domain access, such as get, post, put, etc.
     allow_headers=["*"])  # Allowing cross domain headers can be used to identify sources and other functions.
-
-def get_tts():
-    if app.state.tts == None:
-        print("Init tts")
-        app.state.tts = TTS("tts_models/multilingual/multi-dataset/bark").to("cuda")
-    return app.state.tts
 
 @app.post("/tts/")
 def tts_bark(item: schemas.generate_web):
