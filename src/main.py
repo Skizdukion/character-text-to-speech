@@ -43,6 +43,7 @@ app.add_middleware(
 
 def get_tts():
     if app.state.tts == None:
+        print("Init tts")
         app.state.tts = TTS("tts_models/multilingual/multi-dataset/bark").to("cuda")
     return app.state.tts
 
@@ -64,7 +65,6 @@ def get_random_string(length):
     return result_str
 
 def generate_voices(item: schemas.generate_web):
-    global tts
     print("Execute " + item.text + " at " + item.char)
     try:
         fname = get_random_string(6)
