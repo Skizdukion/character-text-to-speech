@@ -26,7 +26,7 @@ origins = ["*"]  # set to "*" means all.
 
 task_queue = Queue("task_queue", connection=Redis())
 
-app.state.tts = TTS("tts_models/multilingual/multi-dataset/bark").to("cuda") 
+# app.state.tts = TTS("tts_models/multilingual/multi-dataset/bark").to("cuda") 
 
 def get_random_string(length):
     letters = string.ascii_lowercase
