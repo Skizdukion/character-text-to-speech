@@ -44,7 +44,7 @@ app.add_middleware(
 
 @app.post("/tts/")
 async def tts_bark(item: schemas.generate_web):
-    job_instance = task_queue.enqueue(generate_voices, item)
+    job_instance = task_queue.enqueue(generate_voices, args=(item.text, item.char))
     while True:
         job_res = job_instance.fetch(job_instance.get_id(), connection=task_queue.connection)
         if job_res.is_finished:
@@ -58,15 +58,15 @@ def get_random_string(length):
     result_str = ''.join(random.choice(letters) for i in range(length))
     return result_str
 
-def generate_voices(item: schemas.generate_web):
-    print("Execute " + item.text + " at " + item.char)
+def generate_voices(text: string, char: string):
+    print("Execute " + text + " at " + char)
     try:
         fname = get_random_string(6)
 
         file_name_wav = fname + ".wav"
         file_name_ogg = fname + ".ogg"
 
-        app.state.tts.tts_to_file(text=item.text, voice_dir=os.getcwd()+'/voices', speaker=item.char, file_path = os.getcwd() + "/" + file_name_wav)
+        app.state.tts.tts_to_file(text=text, voice_dir=os.getcwd()+'/voices', speaker=char, file_path = os.getcwd() + "/" + file_name_wav)
 
         sound = AudioSegment.from_wav(file_name_wav)
 
@@ -77,7 +77,7 @@ def generate_voices(item: schemas.generate_web):
         base64_audio = base64.b64encode(audio_content).decode("utf-8")
 
         res = {"file_base64": base64_audio,
-               "audio_text": item.text,
+               "audio_text": text,
                "file_name": file_name_ogg,
                }
         
