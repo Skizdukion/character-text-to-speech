@@ -49,7 +49,14 @@ def get_tts():
 
 @app.post("/tts/")
 async def tts_bark(item: schemas.generate_web):
-    job_instance = task_queue.enqueue(generate_voices, item)
+
+    queue_param = {
+        "text": item.text,
+        "char": item.char,
+        "tts": get_tts()
+    }
+
+    job_instance = task_queue.enqueue(generate_voices, queue_param)
     return job_instance.id
     # while True:
     #     job_res = job_instance.fetch(job_instance.get_id(), connection=task_queue.connection)
@@ -64,7 +71,7 @@ def get_random_string(length):
     result_str = ''.join(random.choice(letters) for i in range(length))
     return result_str
 
-def generate_voices(item: schemas.generate_web):
+def generate_voices(item):
     print("Execute " + item.text + " at " + item.char)
     try:
         fname = get_random_string(6)
@@ -72,7 +79,7 @@ def generate_voices(item: schemas.generate_web):
         file_name_wav = fname + ".wav"
         file_name_ogg = fname + ".ogg"
 
-        get_tts().tts_to_file(text=item.text, voice_dir=os.getcwd()+'/voices', speaker=item.char, file_path = os.getcwd() + "/" + file_name_wav)
+        item.tts.tts_to_file(text=item.text, voice_dir=os.getcwd()+'/voices', speaker=item.char, file_path = os.getcwd() + "/" + file_name_wav)
 
         sound = AudioSegment.from_wav(file_name_wav)
 
