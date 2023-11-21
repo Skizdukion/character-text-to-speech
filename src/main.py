@@ -53,6 +53,7 @@ async def tts_bark(item: schemas.generate_web):
     item.tts = get_tts()
 
     job_instance = task_queue.enqueue(generate_voices, item)
+    
     return job_instance.id
     # while True:
     #     job_res = job_instance.fetch(job_instance.get_id(), connection=task_queue.connection)

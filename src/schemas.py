@@ -1,11 +1,11 @@
 from pydantic import BaseModel, Field, validator
 from typing import Union, Literal
 import os
-
+from TTS.api import TTS
 class generate_web(BaseModel):
     text: Union[str, None] = None
     char: str = Field(...)
-    tts = None
+    tts: TTS
 
     @validator('char')
     def check_char(cls, v):
