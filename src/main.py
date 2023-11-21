@@ -26,7 +26,7 @@ app.add_middleware(
 
 @app.post("/tts/")
 def tts_bark(item: schemas.generate_web):
-    task = generate_voices.delay(item)
+    task = generate_voices.delay({"text": item.text, "char": item.char})
     return JSONResponse({"task_id": task.id})
 
 @app.get("/tts/{task_id}")
