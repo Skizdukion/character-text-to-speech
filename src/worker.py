@@ -10,7 +10,6 @@ from pydub import AudioSegment
 import base64
 import traceback
 from TTS.api import TTS
-from redis import Redis
 # fastapi port
 
 cel_app = Celery('tasks', broker="redis://localhost:6379", backend="redis://localhost:6379")
