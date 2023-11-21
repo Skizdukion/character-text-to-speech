@@ -5,7 +5,6 @@ from TTS.api import TTS
 class generate_web(BaseModel):
     text: Union[str, None] = None
     char: str = Field(...)
-    tts: ClassVar[TTS | None] = None
 
     @validator('char')
     def check_char(cls, v):

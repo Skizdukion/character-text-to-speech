@@ -2,4 +2,4 @@ fastapi
 uvicorn
 pydub
 tts
-rq
+celery

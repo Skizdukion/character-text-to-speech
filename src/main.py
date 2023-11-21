@@ -6,16 +6,12 @@ from functions import *
 from TTS.api import TTS
 import random
 import string
-from rq import Queue
-from redis import Redis
 import random
 import string
-import os
-from pydub import AudioSegment
-import base64
-import traceback
 from TTS.api import TTS
-from time import sleep
+from worker import generate_voices
+from fastapi.responses import JSONResponse
+from celery.result import AsyncResult
 
 # fastapi port
 server_port = 6006
@@ -24,9 +20,7 @@ app = FastAPI(docs_url=None, redoc_url=None)
 
 app.state.tts = None
 
-origins = ["*"]  # set to "*" means all.
-
-task_queue = Queue("task_queue", connection=Redis())
+origins = ["*"]
 
 def get_random_string(length):
     letters = string.ascii_lowercase
@@ -48,56 +42,19 @@ def get_tts():
     return app.state.tts
 
 @app.post("/tts/")
-async def tts_bark(item: schemas.generate_web):
+def tts_bark(item: schemas.generate_web):
+    task = generate_voices.delay(item)
+    return JSONResponse({"task_id": task.id})
 
-    item.tts = get_tts()
-
-    job_instance = task_queue.enqueue(generate_voices, item)
-    
-    return job_instance.id
-    # while True:
-    #     job_res = job_instance.fetch(job_instance.get_id(), connection=task_queue.connection)
-    #     if job_res.is_finished:
-    #         return job_res.result
-    #     else:
-    #         sleep(1) 
-
-
-def get_random_string(length):
-    letters = string.ascii_lowercase
-    result_str = ''.join(random.choice(letters) for i in range(length))
-    return result_str
-
-def generate_voices(item: schemas.generate_web):
-    print("Execute " + item.text + " at " + item.char)
-    try:
-        fname = get_random_string(6)
-
-        file_name_wav = fname + ".wav"
-        file_name_ogg = fname + ".ogg"
-
-        item.tts.tts_to_file(text=item.text, voice_dir=os.getcwd()+'/voices', speaker=item.char, file_path = os.getcwd() + "/" + file_name_wav)
-
-        sound = AudioSegment.from_wav(file_name_wav)
-
-        sound.export(file_name_ogg, format="ogg", bitrate="64k", codec="libopus")
-
-        with open(file_name_ogg, "rb") as f:
-            audio_content = f.read()
-        base64_audio = base64.b64encode(audio_content).decode("utf-8")
-
-        res = {"file_base64": base64_audio,
-               "audio_text": item.text,
-               "file_name": file_name_ogg,
-               }
-        
-        os.remove(file_name_wav)
-        os.remove(file_name_ogg)
-        return res
-    except Exception as err:
-        res = {"code": 9, "msg": "api error", "err": str(err), "traceback": traceback.format_exc()}
-        print(res)
-        return res
+@app.get("/tts/{task_id}")
+def get_status(task_id):
+    task_result = AsyncResult(task_id)
+    result = {
+        "task_id": task_id,
+        "task_status": task_result.status,
+        "task_result": task_result.result
+    }
+    return JSONResponse(result)
 
 if __name__ == '__main__':
     print_env(server_port)
