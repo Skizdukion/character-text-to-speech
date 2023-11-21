@@ -45,7 +45,6 @@ app.add_middleware(
 @app.post("/tts/")
 async def tts_bark(item: schemas.generate_web):
     print("Create job " + item.text + " at " + item.char)
-    global tts
     gn_parasm = {
         "text": item.text,
         "char": item.char,
