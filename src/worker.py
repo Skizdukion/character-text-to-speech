@@ -28,14 +28,16 @@ def get_random_string(length):
 
 @cel_app.task(name='generate_voices')
 def generate_voices(item):
-    print("Execute " + item.text + " at " + item.char)
+    text = item['text']
+    char = item['char']
+    print("Execute " + text + " at " + char)
     try:
         fname = get_random_string(6)
 
         file_name_wav = fname + ".wav"
         file_name_ogg = fname + ".ogg"
 
-        tts.tts_to_file(text=item.text, voice_dir=os.getcwd()+'/voices', speaker=item.char, file_path = os.getcwd() + "/" + file_name_wav)
+        tts.tts_to_file(text=text, voice_dir=os.getcwd()+'/voices', speaker=char, file_path = os.getcwd() + "/" + file_name_wav)
 
         sound = AudioSegment.from_wav(file_name_wav)
 
@@ -46,7 +48,7 @@ def generate_voices(item):
         base64_audio = base64.b64encode(audio_content).decode("utf-8")
 
         res = {"file_base64": base64_audio,
-               "audio_text": item.text,
+               "audio_text": char,
                "file_name": file_name_ogg,
                }
         
