@@ -46,7 +46,8 @@ app.add_middleware(
 async def tts_bark(item: schemas.generate_web):
     print("Create job " + item.text + " at " + item.char)
     global tts
-    job_instance = task_queue.enqueue(generate_voices, args=(item, tts))
+    item.tts = tts
+    job_instance = task_queue.enqueue(generate_voices, item)
     print("Created job")
     while True:
         job_res = job_instance.fetch(job_instance.get_id(), connection=task_queue.connection)
@@ -61,7 +62,7 @@ def get_random_string(length):
     result_str = ''.join(random.choice(letters) for i in range(length))
     return result_str
 
-def generate_voices(item: schemas.generate_web, tts: TTS):
+def generate_voices(item):
     print("Execute job" + item.text + " at " + item.char)
     try:
         fname = get_random_string(6)
@@ -69,7 +70,7 @@ def generate_voices(item: schemas.generate_web, tts: TTS):
         file_name_wav = fname + ".wav"
         file_name_ogg = fname + ".ogg"
 
-        tts.tts_to_file(text=item.text, voice_dir=os.getcwd()+'/voices', speaker=item.char, file_path = os.getcwd() + "/" + file_name_wav)
+        item.tts.tts_to_file(text=item.text, voice_dir=os.getcwd()+'/voices', speaker=item.char, file_path = os.getcwd() + "/" + file_name_wav)
 
         sound = AudioSegment.from_wav(file_name_wav)
 
