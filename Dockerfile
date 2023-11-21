@@ -5,15 +5,15 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN apt-get update
 
-RUN apt install espeak-ng ffmpeg -y
+RUN apt install ffmpeg=7:4.4.2-0ubuntu0.22.04.1 -y
 
 WORKDIR /root
 
 ADD ./requirements.txt .
-RUN pip install --ignore-installed blinker
+RUN pip install --ignore-installed blinker==1.7.0
 RUN pip install -r requirements.txt
 ADD ./src .
 
 RUN apt install redis -y
-
-CMD bash -c "redis-server & rq worker task_queue & python main.py"
+RUN touch worker.log
+CMD bash -c "redis-server & celery -A worker worker --loglevel=info --concurrency=1 -f worker.log & python main.py"

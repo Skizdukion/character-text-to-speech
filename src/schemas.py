@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, validator
-from typing import Union, ClassVar
+from typing import Union
 import os
 from TTS.api import TTS
 class generate_web(BaseModel):

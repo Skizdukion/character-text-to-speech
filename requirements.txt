@@ -1,5 +1,5 @@
-fastapi
-uvicorn
-pydub
-tts
-celery
+fastapi=0.104.1
+uvicorn=0.24.0.post1
+pydub=0.25.1
+tts=0.20.6
+celery=5.3.5

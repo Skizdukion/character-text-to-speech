@@ -3,9 +3,7 @@ import schemas
 import uvicorn
 from starlette.middleware.cors import CORSMiddleware
 from functions import *
-from worker import generate_voices, cel_app
-from fastapi.responses import JSONResponse
-from celery.result import AsyncResult
+from worker import generate_voices
 
 # fastapi port
 server_port = 6006
@@ -27,17 +25,7 @@ app.add_middleware(
 @app.post("/tts/")
 def tts_bark(item: schemas.generate_web):
     task = generate_voices.delay({"text": item.text, "char": item.char})
-    return JSONResponse({"task_id": task.id})
-
-@app.get("/tts/{task_id}")
-def get_status(task_id):
-    task_result = cel_app.AsyncResult(task_id)
-    result = {
-        "task_id": task_id,
-        "task_status": task_result.status,
-        "task_result": task_result.result
-    }
-    return JSONResponse(result)
+    return task.get()
 
 if __name__ == '__main__':
     print_env(server_port)
