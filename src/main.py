@@ -22,6 +22,8 @@ server_port = 6006
 
 app = FastAPI(docs_url=None, redoc_url=None)
 
+app.state.tts = None
+
 origins = ["*"]  # set to "*" means all.
 
 task_queue = Queue("task_queue", connection=Redis())
