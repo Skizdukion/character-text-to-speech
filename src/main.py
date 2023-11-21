@@ -3,7 +3,7 @@ import schemas
 import uvicorn
 from starlette.middleware.cors import CORSMiddleware
 from functions import *
-from worker import generate_voices
+from worker import generate_voices, cel_app
 from fastapi.responses import JSONResponse
 from celery.result import AsyncResult
 
@@ -31,7 +31,7 @@ def tts_bark(item: schemas.generate_web):
 
 @app.get("/tts/{task_id}")
 def get_status(task_id):
-    task_result = AsyncResult(task_id)
+    task_result = cel_app.AsyncResult(task_id)
     result = {
         "task_id": task_id,
         "task_status": task_result.status,
