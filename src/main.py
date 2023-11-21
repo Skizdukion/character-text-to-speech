@@ -46,8 +46,12 @@ app.add_middleware(
 async def tts_bark(item: schemas.generate_web):
     print("Create job " + item.text + " at " + item.char)
     global tts
-    item.tts = tts
-    job_instance = task_queue.enqueue(generate_voices, item)
+    gn_parasm = {
+        "text": item.text,
+        "char": item.char,
+        "tts": tts
+    }
+    job_instance = task_queue.enqueue(generate_voices, gn_parasm)
     print("Created job")
     while True:
         job_res = job_instance.fetch(job_instance.get_id(), connection=task_queue.connection)
